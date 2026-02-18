@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IPA Quest Standalone</title>
+  <style>
+    :root { --card:#fff; --ink:#0f1b3d; --accent:#4f46e5; --soft:#e0e7ff; --ok:#166534; --bad:#991b1b; }
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,"Noto Sans KR",sans-serif;background:linear-gradient(145deg,#eef2ff,#fdf4ff);color:var(--ink)}
+    .app{width:min(1000px,94vw);margin:24px auto;display:grid;gap:14px}
+    section,header{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 6px 25px rgba(79,70,229,.08)}
+    .status{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+    .badge{background:var(--soft);color:var(--accent);padding:10px;border-radius:10px;text-align:center;font-weight:700}
+    .buttons{display:flex;gap:8px;flex-wrap:wrap}
+    button{border:none;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:700}
+    .mode{background:#eef2ff;color:#3730a3}.mode.active{background:var(--accent);color:#fff}
+    .prompt{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:800;margin:10px 0}
+    .choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:12px 0}
+    .choice{background:#f8fafc;border:2px solid #e2e8f0}.choice.correct{background:#dcfce7;border-color:#22c55e}.choice.wrong{background:#fee2e2;border-color:#f87171}
+    .feedback{min-height:24px;font-weight:700}.ok{color:var(--ok)}.bad{color:var(--bad)}
+    .actions{display:flex;gap:8px;flex-wrap:wrap} #nextBtn:disabled{opacity:.45;cursor:not-allowed}
+    .typing{display:none}.typing.show{display:block}.typing-row{display:flex;gap:8px;margin-top:8px}.typing-row input{flex:1;padding:10px;border:2px solid #cbd5e1;border-radius:10px}
+    ul{margin:0;padding:0;list-style:none} #mastery{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px} #mastery li{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>🎯 IPA Quest (Standalone)</h1>
+      <p>이 파일 하나만 열어도 바로 학습할 수 있습니다.</p>
+    </header>
+
+    <section class="status">
+      <div class="badge">레벨 <span id="level">1</span></div>
+      <div class="badge">점수 <span id="score">0</span></div>
+      <div class="badge">연속 <span id="streak">0</span></div>
+      <div class="badge">정확도 <span id="accuracy">0%</span></div>
+    </section>
+
+    <section>
+      <h2>학습 모드</h2>
+      <div class="buttons">
+        <button class="mode active" data-mode="symbol">기호→소리</button>
+        <button class="mode" data-mode="word">단어 읽기</button>
+        <button class="mode" data-mode="typing">직접 타이핑</button>
+        <button class="mode" data-mode="review">오답 복습</button>
+      </div>
+      <p id="hint"></p>
+    </section>
+
+    <section>
+      <h2 id="title">문제</h2>
+      <div class="prompt" id="prompt"></div>
+      <p id="sub"></p>
+      <div class="choices" id="choices"></div>
+      <div class="typing" id="typing">
+        <label for="typingInput">한글 발음을 입력하세요</label>
+        <div class="typing-row">
+          <input id="typingInput" placeholder="예: 스케줄" />
+          <button id="typingSubmit">제출</button>
+        </div>
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="actions">
+        <button id="speakBtn">🔊 발음 듣기</button>
+        <button id="nextBtn" disabled>다음</button>
+        <button id="resetBtn">진도 초기화</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>마스터리</h2>
+      <ul id="mastery"></ul>
+    </section>
+  </main>
+
+<script>
+const symbolQuiz=[
+{ipa:'/iː/',sound:'길게 이',examples:['see','team'],d:['짧은 이','에','어']},
+{ipa:'/ɪ/',sound:'짧은 이',examples:['sit','ship'],d:['길게 이','에이','아']},
+{ipa:'/æ/',sound:'애',examples:['cat','map'],d:['아','에','어']},
+{ipa:'/ʌ/',sound:'어(짧게)',examples:['cup','love'],d:['오','애','아']},
+{ipa:'/ɑː/',sound:'아(길게)',examples:['car','father'],d:['오','어','애']},
+{ipa:'/θ/',sound:'혀를 이 사이에 둔 쓰',examples:['think'],d:['스','즈','트']},
+{ipa:'/ð/',sound:'혀를 이 사이에 둔 즈',examples:['this'],d:['더','스','브']}
+];
+const wordQuiz=[
+{word:'schedule',ipa:'/ˈskedʒuːl/',reading:'스케줄',aliases:['스케쥴'],meaning:'일정표'},
+{word:'enough',ipa:'/ɪˈnʌf/',reading:'이너프',aliases:[],meaning:'충분한'},
+{word:'colonel',ipa:'/ˈkɜːrnəl/',reading:'커널',aliases:[],meaning:'대령'},
+{word:'choir',ipa:'/ˈkwaɪər/',reading:'콰이어',aliases:[],meaning:'합창단'},
+{word:'genre',ipa:'/ˈʒɑːnrə/',reading:'장르',aliases:['잔르'],meaning:'장르'}
+];
+const KEY='ipa-quest-standalone-v1';
+const s={mode:'symbol',score:0,streak:0,level:1,total:0,correct:0,current:null,mastery:new Map(),wrong:[],answered:false};
+const $=id=>document.getElementById(id);
+const refs={level:$('level'),score:$('score'),streak:$('streak'),accuracy:$('accuracy'),title:$('title'),prompt:$('prompt'),sub:$('sub'),choices:$('choices'),feedback:$('feedback'),next:$('nextBtn'),speak:$('speakBtn'),reset:$('resetBtn'),mastery:$('mastery'),hint:$('hint'),typing:$('typing'),typingInput:$('typingInput'),typingSubmit:$('typingSubmit'),modes:[...document.querySelectorAll('.mode')]};
+const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+function save(){localStorage.setItem(KEY,JSON.stringify({score:s.score,streak:s.streak,level:s.level,total:s.total,correct:s.correct,mastery:[...s.mastery.entries()],wrong:s.wrong}));}
+function load(){try{const p=JSON.parse(localStorage.getItem(KEY)||'{}');s.score=p.score||0;s.streak=p.streak||0;s.level=p.level||1;s.total=p.total||0;s.correct=p.correct||0;s.mastery=new Map(p.mastery||[]);s.wrong=p.wrong||[]}catch{}}
+function render(){refs.level.textContent=s.level;refs.score.textContent=s.score;refs.streak.textContent=s.streak;refs.accuracy.textContent=`${s.total?Math.round(s.correct/s.total*100):0}%`;refs.mastery.innerHTML='';const t=[...s.mastery.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);if(!t.length){refs.mastery.innerHTML='<li>첫 문제를 풀어보세요!</li>';return;}t.forEach(([k,v])=>{const li=document.createElement('li');li.textContent=`${k} — ${v>=3?'🔥 마스터':v>=1?'📈 진행중':'🔁 복습필요'}`;refs.mastery.appendChild(li);});}
+function optionBtn(text){const b=document.createElement('button');b.className='choice';b.textContent=text;b.onclick=()=>checkChoice(text,b);refs.choices.appendChild(b)}
+function setTyping(show){refs.typing.classList.toggle('show',show)}
+function nextQ(){s.answered=false;refs.next.disabled=true;refs.feedback.className='feedback';refs.feedback.textContent='';refs.choices.innerHTML='';setTyping(false);
+if(s.mode==='typing'){const i=wordQuiz[Math.floor(Math.random()*wordQuiz.length)];s.current={...i,key:`typing:${i.word}`};refs.title.textContent='직접 타이핑';refs.prompt.textContent=`${i.word}  ${i.ipa}`;refs.sub.textContent=`뜻: ${i.meaning}`;refs.hint.textContent='선택지 없이 직접 입력해 실전처럼 연습하세요.';setTyping(true);refs.typingInput.value='';return;}
+if(s.mode==='review'){if(!s.wrong.length){refs.title.textContent='오답 복습';refs.prompt.textContent='🎉 오답이 없습니다';refs.sub.textContent='다른 모드에서 학습 후 다시 오세요.';refs.hint.textContent='오답은 자동 저장됩니다.';return;}const i=s.wrong[Math.floor(Math.random()*s.wrong.length)];const opts=shuffle([i.reading,...shuffle(wordQuiz.filter(w=>w.word!==i.word)).slice(0,3).map(w=>w.reading)]);s.current={...i,answer:i.reading,key:`review:${i.word}`};refs.title.textContent='오답 복습';refs.prompt.textContent=`${i.word}  ${i.ipa}`;refs.sub.textContent=`뜻: ${i.meaning}`;refs.hint.textContent='맞히면 오답 목록에서 제거됩니다.';opts.forEach(optionBtn);return;}
+if(s.mode==='symbol'){const i=symbolQuiz[Math.floor(Math.random()*symbolQuiz.length)];const opts=shuffle([i.sound,...i.d]).slice(0,4);s.current={...i,answer:i.sound,key:`symbol:${i.ipa}`};refs.title.textContent='기호→소리';refs.prompt.textContent=i.ipa;refs.sub.textContent=`예시: ${i.examples.join(', ')}`;refs.hint.textContent='장단모음(ː)과 혀 위치를 신경써 보세요.';opts.forEach(optionBtn);return;}
+const i=wordQuiz[Math.floor(Math.random()*wordQuiz.length)];const opts=shuffle([i.reading,...shuffle(wordQuiz.filter(w=>w.word!==i.word)).slice(0,3).map(w=>w.reading)]);s.current={...i,answer:i.reading,key:`word:${i.word}`};refs.title.textContent='단어 읽기';refs.prompt.textContent=`${i.word}  ${i.ipa}`;refs.sub.textContent=`뜻: ${i.meaning}`;refs.hint.textContent='강세(ˈ) 위치를 먼저 확인하세요.';opts.forEach(optionBtn);
+}
+function trackWrong(add){if(!s.current.word) return; if(add){if(!s.wrong.some(w=>w.word===s.current.word)) s.wrong.push({word:s.current.word,ipa:s.current.ipa,reading:s.current.reading,meaning:s.current.meaning});} else {s.wrong=s.wrong.filter(w=>w.word!==s.current.word);} }
+function result(ok,user=''){s.total++; if(ok){s.correct++;s.streak++;const b=12+Math.min(10,s.streak);s.score+=b;refs.feedback.textContent=`정답! +${b}점`;refs.feedback.classList.add('ok');trackWrong(false);} else {s.streak=0;s.score=Math.max(0,s.score-5);refs.feedback.textContent=`오답! ${user?`(입력: ${user}) `:''}정답은 "${s.current.answer||s.current.reading}"`;refs.feedback.classList.add('bad');trackWrong(true);}const m=s.mastery.get(s.current.key)||0;s.mastery.set(s.current.key,Math.max(0,m+(ok?1:-1)));s.level=Math.floor(s.score/150)+1;refs.next.disabled=false;render();save();}
+function checkChoice(ans,btn){if(s.answered) return; s.answered=true;[...refs.choices.children].forEach(b=>{if(b.textContent===(s.current.answer||s.current.reading)) b.classList.add('correct')});if(ans!==(s.current.answer||s.current.reading)) btn.classList.add('wrong');result(ans===(s.current.answer||s.current.reading));}
+function checkTyping(){if(s.answered||s.mode!=='typing')return;const u=refs.typingInput.value.trim();if(!u){refs.feedback.textContent='입력 후 제출해주세요.';refs.feedback.className='feedback bad';return;}s.answered=true;const n=u.replaceAll(' ','').toLowerCase();const accepted=[s.current.reading,...(s.current.aliases||[])].map(v=>v.replaceAll(' ','').toLowerCase());result(accepted.includes(n),u);}
+function speak(){if(!s.current) return;const u=new SpeechSynthesisUtterance();u.lang='en-US';u.text=s.current.examples?.[0]||s.current.word||'';speechSynthesis.cancel();speechSynthesis.speak(u)}
+function reset(){localStorage.removeItem(KEY);Object.assign(s,{score:0,streak:0,level:1,total:0,correct:0,mastery:new Map(),wrong:[]});render();nextQ();}
+refs.modes.forEach(b=>b.addEventListener('click',()=>{refs.modes.forEach(x=>x.classList.remove('active'));b.classList.add('active');s.mode=b.dataset.mode;nextQ();}));
+refs.next.onclick=nextQ;refs.speak.onclick=speak;refs.reset.onclick=reset;refs.typingSubmit.onclick=checkTyping;refs.typingInput.addEventListener('keydown',e=>{if(e.key==='Enter')checkTyping()});
+load();render();nextQ();
+</script>
+</body>
+</html>
