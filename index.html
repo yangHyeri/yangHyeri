@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IPA Quest - 영어 발음기호 마스터 게임</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>🎯 IPA Quest</h1>
+      <p>사전 발음기호만 보고도 영단어를 읽는 실력을 만드는 훈련 게임</p>
+    </header>
+
+    <section class="status-panel">
+      <div class="badge">레벨 <span id="level">1</span></div>
+      <div class="badge">점수 <span id="score">0</span></div>
+      <div class="badge">연속 정답 <span id="streak">0</span></div>
+      <div class="badge">정확도 <span id="accuracy">0%</span></div>
+    </section>
+
+    <section class="mode-panel">
+      <h2>학습 모드</h2>
+      <div class="buttons">
+        <button data-mode="symbol" class="mode-btn active">기호→소리</button>
+        <button data-mode="word" class="mode-btn">단어 읽기</button>
+        <button data-mode="typing" class="mode-btn">직접 타이핑</button>
+        <button data-mode="review" class="mode-btn">오답 복습</button>
+      </div>
+      <p class="hint" id="modeHint"></p>
+    </section>
+
+    <section class="card" id="questionCard">
+      <h2 id="questionTitle">문제</h2>
+      <div class="prompt" id="promptArea"></div>
+      <p class="subtext" id="subText"></p>
+      <div class="choices" id="choices"></div>
+
+      <div id="typingArea" class="typing-area hidden">
+        <label for="typingInput">한글 발음을 직접 입력해보세요</label>
+        <div class="typing-row">
+          <input id="typingInput" type="text" placeholder="예: 스케줄" />
+          <button id="submitTypingBtn">제출</button>
+        </div>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+      <div class="actions">
+        <button id="speakBtn">🔊 발음 듣기</button>
+        <button id="nextBtn" disabled>다음 문제</button>
+        <button id="resetBtn">진도 초기화</button>
+      </div>
+    </section>
+
+    <section class="progress-list">
+      <h2>오늘의 마스터 현황</h2>
+      <ul id="masteryList"></ul>
+    </section>
+
+    <section class="study-plan">
+      <h2>추천 학습 루틴 (하루 20분)</h2>
+      <ol>
+        <li>기호→소리 10문제 (정확도 80% 목표)</li>
+        <li>단어 읽기 10문제 (강세표시 ˈ 확인하기)</li>
+        <li>직접 타이핑 5문제 (소리만 보고 쓰기)</li>
+        <li>오답 복습 모드 5문제 (틀린 것만 반복)</li>
+      </ol>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
