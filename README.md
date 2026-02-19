@@ -40,3 +40,18 @@ python pca_analysis.py --sample iris --plot-out iris_pca.png
 - 선택한 PCA 차원으로 변환된 데이터(`pca_output.csv`)
 - 설명 분산 비율(콘솔 출력)
 - 산점도 이미지(옵션)
+
+## JCH 수식 시각화 그림 생성
+
+아래 스크립트는 가상 스펙트럼 데이터를 생성해, JCH 석회 모르타르 문맥의 핵심 수식 4종(RMSE, SAM, Continuum/BD1900, PCA)을 비전공자용 그림으로 저장합니다.
+
+```bash
+python jch_equation_visualizations.py
+```
+
+생성 파일:
+
+- `fig1_rmse.png`
+- `fig2_sam.png`
+- `fig3_continuum_bd1900.png`
+- `fig4_pca_scores_loadings.png`
