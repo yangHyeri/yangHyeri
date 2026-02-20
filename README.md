@@ -155,3 +155,11 @@ python pca_analysis.py --sample iris --plot-out iris_pca.png
 2. RMSE·SAM 계산 후 “크기 vs 형태” 분리 해석
 3. 950 nm 밴드비와 1900 nm BD로 특징 대역 해석
 4. 마지막에 PCA로 전체 패턴 일관성 확인
+
+
+---
+
+## JCH 학습자료 파일
+
+- `jch_study_guide.html`: JCH 논문 Eq.1~Eq.7을 공부할 수 있는 독립형 HTML 학습자료
+- 실행: 파일 더블클릭 또는 `python -m http.server 8000` 후 `/jch_study_guide.html` 접속

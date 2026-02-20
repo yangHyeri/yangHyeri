@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JCH 논문 수식 학습자료 (Eq.1~Eq.7)</title>
+  <style>
+    body { font-family: 'Noto Sans KR', Arial, sans-serif; line-height: 1.65; margin: 0; background: #f7f9fc; color: #1e293b; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 28px 20px 56px; }
+    h1, h2, h3 { color: #0f172a; }
+    .hero { background: #eaf1ff; border: 1px solid #c8dbff; border-radius: 14px; padding: 18px; }
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; margin-top: 14px; }
+    .formula { background: #0f172a; color: #e2e8f0; padding: 10px 12px; border-radius: 10px; font-family: Consolas, monospace; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; }
+    th { background: #eff6ff; }
+    .mini { color: #475569; font-size: 0.94rem; }
+    .tip { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 10px; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>JCH 논문 수식 학습자료 (Eq.1~Eq.7)</h1>
+      <p>이 문서는 초분광 보존 분석에서 사용한 7개 수식을 <strong>논문 해석 중심</strong>으로 공부할 수 있게 정리한 HTML 학습자료입니다.</p>
+      <p class="mini">학습 순서: SNR → RMSE → SAM → R950/R1000 → Continuum → CR → BD1900 → PCA</p>
+    </section>
+
+    <section class="card">
+      <h2>0) 데이터 품질 확인: SNR</h2>
+      <div class="formula">SNR(λ) = μ(λ) / σ(λ)</div>
+      <ul>
+        <li><strong>μ(λ)</strong>: 해당 파장 평균 신호, <strong>σ(λ)</strong>: 잡음 변동</li>
+        <li>SNR이 낮은 구간은 해석을 보수적으로 해야 합니다.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Eq.(1) RMSE — 전체 변화량(크기)</h2>
+      <div class="formula">RMSE = √[(1/N) Σ (Rt(λi) - R0(λi))²]</div>
+      <ul>
+        <li>기준 시점 대비 얼마나 멀어졌는지(절대 변화량)를 한 숫자로 표현.</li>
+        <li>값이 작을수록 장기 안정성이 높습니다.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Eq.(2) SAM — 형태 변화(모양)</h2>
+      <div class="formula">SAM = cos⁻¹[(Rt · R0) / (|Rt||R0|)]</div>
+      <ul>
+        <li>밝기 스케일보다 스펙트럼 형태 변화에 민감합니다.</li>
+        <li>SAM ≈ 0°이면 형태가 거의 동일합니다.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Eq.(3) R950/R1000 — 950nm 특징 피처</h2>
+      <div class="formula">R950/R1000 = mean(R945–955) / mean(R995–1005)</div>
+      <ul>
+        <li>조명/알베도 영향을 줄이기 위한 밴드비 지표.</li>
+        <li>1에 가까우면 평탄, 값이 커지면 950nm 피처 강화.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Eq.(4) Continuum — 기준선 정의</h2>
+      <div class="formula">Rc(λ) = Rl + (Rr - Rl) × (λ - λl) / (λr - λl)</div>
+      <ul>
+        <li>흡수대 양쪽 어깨를 직선으로 연결해 기준선을 만듭니다.</li>
+      </ul>
+
+      <h2>Eq.(5) Continuum Removed Reflectance</h2>
+      <div class="formula">Rcr(λ) = R(λ) / Rc(λ)</div>
+      <ul>
+        <li>기준선 대비 흡수대 형태를 정규화해 비교하기 쉽게 만듭니다.</li>
+      </ul>
+
+      <h2>Eq.(6) BD1900 — 흡수대 깊이</h2>
+      <div class="formula">BD = 1 - Rcr(λc) = 1 - R(λc)/Rc(λc)</div>
+      <ul>
+        <li>1900nm 수분/OH 관련 흡수 강도를 정량화합니다.</li>
+        <li>값이 클수록 흡수대가 깊습니다.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Eq.(7) PCA Score — 전체 스펙트럼 구조 요약</h2>
+      <div class="formula">tk = Xc × pk</div>
+      <ul>
+        <li>수백 파장을 2~3축으로 압축해 처리군 간 분포를 비교합니다.</li>
+        <li>점이 가까우면 유사, 멀면 분광학적 차이가 큽니다.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>빠른 해석표 (논문용)</h2>
+      <table>
+        <thead>
+          <tr><th>상황</th><th>의미</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>RMSE↑ + SAM↓</td><td>밝기/수준은 변했지만 형태는 유지</td></tr>
+          <tr><td>RMSE↓ + SAM↑</td><td>전체 수준은 비슷하지만 형태 변화 존재</td></tr>
+          <tr><td>R950/R1000↑</td><td>950nm 특이 피처 강화</td></tr>
+          <tr><td>BD1900↑</td><td>1900nm 수분/OH 흡수 심화</td></tr>
+          <tr><td>PCA 분리↑</td><td>처리군 간 분광 차이 확대</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card tip">
+      <h3>Word 파일로 쓰고 싶다면</h3>
+      <p>이 HTML을 브라우저에서 열고 <strong>인쇄 → PDF 저장</strong> 후 Word에서 열거나, 내용 복사 후 Word에 붙여서 바로 편집할 수 있습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
