@@ -163,3 +163,5 @@ python pca_analysis.py --sample iris --plot-out iris_pca.png
 
 - `jch_study_guide.html`: JCH 논문 Eq.1~Eq.7을 공부할 수 있는 독립형 HTML 학습자료
 - 실행: 파일 더블클릭 또는 `python -m http.server 8000` 후 `/jch_study_guide.html` 접속
+
+- `jch_equation_coaching.html`: 수식별 시각화(슬라이더/SVG)까지 포함한 상세 코칭 자료

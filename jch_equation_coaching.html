@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JCH 수식 코칭 자료 (시각화 포함)</title>
+  <style>
+    :root{--bg:#0b1220;--panel:#121c31;--soft:#1b2947;--text:#e5ecff;--muted:#9fb2d9;--line:#39527f;--accent:#6ea8ff;--good:#34d399;--warn:#fbbf24}
+    *{box-sizing:border-box} body{margin:0;font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+    .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 60px;display:grid;gap:14px}
+    .hero,.sec{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+    h1,h2,h3{margin:.2rem 0 .6rem} p{margin:.3rem 0}
+    .muted{color:var(--muted)} .formula{font-family:Consolas,monospace;background:#0a1324;border:1px solid #2e4772;border-radius:10px;padding:10px;overflow:auto}
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}
+    .viz{background:#0d1629;border:1px solid #28406a;border-radius:12px;padding:10px}
+    .tag{display:inline-block;padding:3px 8px;border-radius:999px;font-size:.78rem;background:#243a66;color:#c8dbff;margin-right:6px}
+    ul{margin:.2rem 0 .2rem 1.05rem}
+    table{width:100%;border-collapse:collapse;margin-top:8px} th,td{border:1px solid #35507d;padding:7px} th{background:#1a2b4d}
+    .range{display:grid;gap:6px;margin-top:8px} input[type=range]{width:100%}
+    .value{font-size:.9rem;color:#cce0ff}
+    .box{padding:8px;border-radius:8px;background:#13213e;border:1px solid #2b4470}
+    .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.85rem;color:#cde0ff}
+    .dot{width:10px;height:10px;border-radius:99px;display:inline-block;margin-right:4px;vertical-align:middle}
+    .g{background:#34d399}.b{background:#60a5fa}.o{background:#f59e0b}.p{background:#f472b6}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <h1>JCH 논문 수식 코칭 자료 (Eq.1~Eq.7)</h1>
+    <p class="muted">요청하신 대로 <strong>더 자세한 수식 코칭</strong>을 위해, 각 수식마다 <strong>개념 + 계산 단계 + 해석 + 시각화</strong>를 같이 배치했습니다.</p>
+    <p><span class="tag">학습 흐름</span> SNR → RMSE → SAM → R950/R1000 → Continuum/CR/BD1900 → PCA</p>
+  </section>
+
+  <section class="sec">
+    <h2>0) 신뢰도 점검: SNR</h2>
+    <div class="formula">SNR(λ)= μ(λ) / σ(λ)</div>
+    <ul>
+      <li>μ(λ): 해당 파장의 평균 신호(목소리), σ(λ): 표준편차(소음).</li>
+      <li>SNR이 높은 파장일수록 후속 해석(RMSE/SAM/BD/PCA) 신뢰도가 높습니다.</li>
+    </ul>
+  </section>
+
+  <section class="sec grid">
+    <div>
+      <h2>Eq.(1) RMSE — 변화량 크기</h2>
+      <div class="formula">RMSE = √[(1/N) Σ (Rt(λi)-R0(λi))²]</div>
+      <h3>코칭 포인트</h3>
+      <ul>
+        <li>모든 파장을 한 번에 합쳐 "초기 상태와의 거리"를 계산합니다.</li>
+        <li>값이 작으면 안정적, 크면 시간 변화가 큽니다.</li>
+        <li><strong>주의:</strong> 밝기 변화와 형태 변화를 분리하지 못함 → SAM과 같이 봐야 함.</li>
+      </ul>
+    </div>
+    <div class="viz">
+      <svg viewBox="0 0 360 200" width="100%" aria-label="RMSE 시각화">
+        <polyline points="20,160 80,120 140,135 200,70 260,88 320,60" fill="none" stroke="#60a5fa" stroke-width="3"/>
+        <polyline points="20,150 80,115 140,145 200,90 260,95 320,80" fill="none" stroke="#f59e0b" stroke-width="3"/>
+        <text x="20" y="18" fill="#cde0ff" font-size="12">R0(파랑) vs Rt(주황) 차이의 평균 제곱근</text>
+      </svg>
+      <div class="range">
+        <label>차이 크기 조절 <input id="rmseRange" type="range" min="0" max="40" value="16"></label>
+        <div class="value" id="rmseValue"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec grid">
+    <div>
+      <h2>Eq.(2) SAM — 형태 유사도(각도)</h2>
+      <div class="formula">SAM = cos⁻¹[(Rt · R0) / (|Rt||R0|)]</div>
+      <ul>
+        <li>스펙트럼을 벡터(화살표)로 보고 각도를 구합니다.</li>
+        <li>밝기가 2배가 되어도 방향이 같으면 SAM은 작게 유지됩니다.</li>
+      </ul>
+      <div class="box">해석: SAM≈0°(형태 유지), SAM↑(형태 변화 증가)</div>
+    </div>
+    <div class="viz">
+      <svg id="samSvg" viewBox="0 0 360 220" width="100%"></svg>
+      <div class="range">
+        <label>각도(θ) <input id="samRange" type="range" min="2" max="70" value="18"></label>
+        <div class="value" id="samValue"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec grid">
+    <div>
+      <h2>Eq.(3) R950/R1000 — 밴드비 지표</h2>
+      <div class="formula">R950/R1000 = mean(R945–955)/mean(R995–1005)</div>
+      <ul>
+        <li>950nm 특징 구간(분자)을 1000nm 기준 구간(분모)으로 나눠 정규화합니다.</li>
+        <li>1.0 근처면 평탄, 값이 클수록 950nm 피처가 뚜렷합니다.</li>
+      </ul>
+    </div>
+    <div class="viz">
+      <svg id="ratioSvg" viewBox="0 0 360 200" width="100%"></svg>
+      <div class="range">
+        <label>950nm 피크 강도 <input id="ratioRange" type="range" min="0" max="40" value="12"></label>
+        <div class="value" id="ratioValue"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec grid">
+    <div>
+      <h2>Eq.(4)~(6) Continuum → CR → BD1900</h2>
+      <div class="formula">Rc(λ)=Rl+(Rr-Rl)×(λ-λl)/(λr-λl)</div>
+      <div class="formula">Rcr(λ)=R(λ)/Rc(λ)</div>
+      <div class="formula">BD = 1 - Rcr(λc)</div>
+      <ol>
+        <li>어깨를 잇는 직선(continuum) 구성</li>
+        <li>실제 스펙트럼을 continuum로 나눠 정규화</li>
+        <li>1900nm 중심에서 깊이(BD) 계산</li>
+      </ol>
+    </div>
+    <div class="viz">
+      <svg id="bdSvg" viewBox="0 0 360 220" width="100%"></svg>
+      <div class="range">
+        <label>흡수대 깊이 <input id="bdRange" type="range" min="4" max="70" value="32"></label>
+        <div class="value" id="bdValue"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec grid">
+    <div>
+      <h2>Eq.(7) PCA Score — 분산 구조 요약</h2>
+      <div class="formula">tk = Xc × pk</div>
+      <ul>
+        <li>수백 파장을 PC1/PC2 축으로 압축해서 군집 분리 확인.</li>
+        <li>가까운 점=유사 스펙트럼, 멀수록 이질.</li>
+      </ul>
+      <div class="legend">
+        <span><i class="dot g"></i>L</span><span><i class="dot b"></i>M</span><span><i class="dot o"></i>B</span><span><i class="dot p"></i>W</span>
+      </div>
+    </div>
+    <div class="viz">
+      <svg id="pcaSvg" viewBox="0 0 360 220" width="100%"></svg>
+      <div class="range">
+        <label>군집 분리 정도 <input id="pcaRange" type="range" min="4" max="55" value="20"></label>
+        <div class="value" id="pcaValue"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>요약 해석 매트릭스</h2>
+    <table>
+      <thead><tr><th>조합</th><th>해석</th><th>논문 해석 포인트</th></tr></thead>
+      <tbody>
+        <tr><td>RMSE↑ + SAM↓</td><td>밝기/수준 변화 중심</td><td>표면 조건 변화 가능성 점검</td></tr>
+        <tr><td>RMSE↓ + SAM↑</td><td>형태 변화 중심</td><td>흡수대 거동(성분) 변화 의심</td></tr>
+        <tr><td>R950/R1000↑</td><td>950nm 특징 강화</td><td>처리제 fingerprint 가능성</td></tr>
+        <tr><td>BD1900↑</td><td>수분/OH 흡수 증가</td><td>수분 거동 및 반응성 변화</td></tr>
+        <tr><td>PCA 분리↑</td><td>처리군 이질성 확대</td><td>군 간 분광학적 차이 증대</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+  const rmseRange = document.getElementById('rmseRange');
+  const rmseValue = document.getElementById('rmseValue');
+  const samRange = document.getElementById('samRange');
+  const samValue = document.getElementById('samValue');
+  const ratioRange = document.getElementById('ratioRange');
+  const ratioValue = document.getElementById('ratioValue');
+  const bdRange = document.getElementById('bdRange');
+  const bdValue = document.getElementById('bdValue');
+  const pcaRange = document.getElementById('pcaRange');
+  const pcaValue = document.getElementById('pcaValue');
+
+  function updateRMSE(){
+    const d = Number(rmseRange.value)/1000;
+    rmseValue.textContent = `예시 RMSE ≈ ${Math.sqrt((d*d*6)/6).toFixed(4)} (차이 크기=${d.toFixed(3)})`;
+  }
+
+  function drawSAM(){
+    const theta = Number(samRange.value) * Math.PI/180;
+    const x2 = 70 + Math.cos(theta)*150;
+    const y2 = 180 - Math.sin(theta)*150;
+    const svg = `
+      <line x1="70" y1="180" x2="250" y2="180" stroke="#60a5fa" stroke-width="4"/>
+      <line x1="70" y1="180" x2="${x2}" y2="${y2}" stroke="#f59e0b" stroke-width="4"/>
+      <path d="M 105 180 A 35 35 0 0 0 ${70+Math.cos(theta)*35} ${180-Math.sin(theta)*35}" stroke="#34d399" fill="none" stroke-width="2"/>
+      <text x="12" y="20" fill="#d3e4ff" font-size="12">R0(파랑)와 Rt(주황) 벡터 각도 = SAM</text>
+      <text x="118" y="160" fill="#34d399" font-size="12">θ=${(theta*180/Math.PI).toFixed(1)}°</text>`;
+    document.getElementById('samSvg').innerHTML = svg;
+    samValue.textContent = `SAM = ${(theta*180/Math.PI).toFixed(1)}°`;
+  }
+
+  function drawRatio(){
+    const peak = Number(ratioRange.value);
+    const y950 = 130 - peak;
+    const y1000 = 130;
+    const num = 0.35 + peak/500;
+    const den = 0.35;
+    const ratio = num/den;
+    const svg = `
+      <polyline points="20,140 100,120 160,${y950} 220,${y1000} 320,130" fill="none" stroke="#60a5fa" stroke-width="3"/>
+      <line x1="160" y1="30" x2="160" y2="170" stroke="#93c5fd" stroke-dasharray="4 4"/>
+      <line x1="220" y1="30" x2="220" y2="170" stroke="#fcd34d" stroke-dasharray="4 4"/>
+      <text x="147" y="185" fill="#cde0ff" font-size="11">950</text>
+      <text x="205" y="185" fill="#cde0ff" font-size="11">1000</text>`;
+    document.getElementById('ratioSvg').innerHTML = svg;
+    ratioValue.textContent = `R950/R1000 ≈ ${ratio.toFixed(3)} (950=${num.toFixed(3)}, 1000=${den.toFixed(3)})`;
+  }
+
+  function drawBD(){
+    const depth = Number(bdRange.value);
+    const bottom = 120 + depth;
+    const rc = 0.29;
+    const r = rc - depth/1000;
+    const rcr = r/rc;
+    const bd = 1-rcr;
+    const svg = `
+      <line x1="40" y1="70" x2="320" y2="90" stroke="#fcd34d" stroke-width="3"/>
+      <path d="M40 70 Q180 ${bottom} 320 90" stroke="#60a5fa" fill="none" stroke-width="3"/>
+      <line x1="180" y1="80" x2="180" y2="${bottom}" stroke="#34d399" stroke-dasharray="4 4"/>
+      <text x="185" y="${(bottom+80)/2}" fill="#34d399" font-size="12">BD</text>
+      <text x="10" y="20" fill="#d3e4ff" font-size="12">노랑: Continuum, 파랑: 실제 스펙트럼</text>`;
+    document.getElementById('bdSvg').innerHTML = svg;
+    bdValue.textContent = `Rcr(λc)≈${rcr.toFixed(3)} → BD≈${bd.toFixed(3)}`;
+  }
+
+  function drawPCA(){
+    const sep = Number(pcaRange.value);
+    const groups = {
+      L:[[80,130],[90,120],[100,140]],
+      M:[[150,130],[160,120],[170,140]],
+      B:[[220,130],[230,120],[240,140]],
+      W:[[290-sep,95],[300-sep,85],[305-sep,110]]
+    };
+    const color = {L:'#34d399',M:'#60a5fa',B:'#f59e0b',W:'#f472b6'};
+    let s = '<line x1="30" y1="180" x2="330" y2="180" stroke="#5f7fb2"/><line x1="30" y1="30" x2="30" y2="180" stroke="#5f7fb2"/>';
+    Object.entries(groups).forEach(([k,pts])=>pts.forEach(([x,y])=>{s += `<circle cx="${x}" cy="${y}" r="5" fill="${color[k]}"/>`; }));
+    s += '<text x="300" y="195" fill="#cde0ff" font-size="11">PC1</text><text x="8" y="35" fill="#cde0ff" font-size="11">PC2</text>';
+    document.getElementById('pcaSvg').innerHTML = s;
+    pcaValue.textContent = `W군 분리 정도(예시): ${sep} px`;
+  }
+
+  [rmseRange,samRange,ratioRange,bdRange,pcaRange].forEach(el=>el.addEventListener('input',()=>{updateRMSE();drawSAM();drawRatio();drawBD();drawPCA();}));
+  updateRMSE(); drawSAM(); drawRatio(); drawBD(); drawPCA();
+</script>
+</body>
+</html>
