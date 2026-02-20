@@ -1,330 +1,217 @@
-const symbolQuiz = [
-  { ipa: '/iː/', sound: '길게 이', examples: ['see', 'team'], distractors: ['짧은 이', '에', '어'] },
-  { ipa: '/ɪ/', sound: '짧은 이', examples: ['sit', 'ship'], distractors: ['길게 이', '에이', '아'] },
-  { ipa: '/æ/', sound: '애', examples: ['cat', 'map'], distractors: ['아', '에', '어'] },
-  { ipa: '/ʌ/', sound: '어(짧게)', examples: ['cup', 'love'], distractors: ['오', '애', '아'] },
-  { ipa: '/ɑː/', sound: '아(길게)', examples: ['car', 'father'], distractors: ['오', '어', '애'] },
-  { ipa: '/ɔː/', sound: '오(길게)', examples: ['law', 'call'], distractors: ['아', '우', '어'] },
-  { ipa: '/uː/', sound: '우(길게)', examples: ['blue', 'food'], distractors: ['짧은 우', '오', '아'] },
-  { ipa: '/ʊ/', sound: '짧은 우', examples: ['book', 'good'], distractors: ['길게 우', '어', '오'] },
-  { ipa: '/eɪ/', sound: '에이', examples: ['name', 'day'], distractors: ['에', '아이', '오우'] },
-  { ipa: '/aɪ/', sound: '아이', examples: ['time', 'my'], distractors: ['에이', '오이', '아'] },
-  { ipa: '/oʊ/', sound: '오우', examples: ['go', 'home'], distractors: ['오', '아우', '어'] },
-  { ipa: '/aʊ/', sound: '아우', examples: ['now', 'house'], distractors: ['오우', '아이', '어'] },
-  { ipa: '/θ/', sound: '혀를 이 사이에 둔 쓰', examples: ['think', 'bath'], distractors: ['스', '즈', '트'] },
-  { ipa: '/ð/', sound: '혀를 이 사이에 둔 즈', examples: ['this', 'mother'], distractors: ['더', '스', '브'] },
-  { ipa: '/ʃ/', sound: '쉬', examples: ['she', 'mission'], distractors: ['스', '치', '지'] },
-  { ipa: '/tʃ/', sound: '취', examples: ['chair', 'watch'], distractors: ['쉬', '츠', '티'] },
-  { ipa: '/dʒ/', sound: '쥐', examples: ['job', 'bridge'], distractors: ['즈', '취', '지'] }
+const equations = [
+  {
+    id: 'home',
+    navLabel: 'Home',
+    cardTitle: '학습 가이드',
+    short: '7개 수식의 역할을 한 흐름으로 이해하기',
+    tag: '개요',
+    detailTitle: '전체 분석 흐름',
+    detailSummary: 'SNR로 데이터 품질을 점검한 뒤, RMSE/SAM으로 장기 안정성, 밴드 기반 지표로 특징 파장대, 마지막으로 PCA로 전체 구조를 요약합니다.',
+    formula: 'SNR(λ) = μ(λ) / σ(λ)',
+    points: [
+      'SNR이 충분히 높아야 나머지 수식 해석의 신뢰도가 확보됩니다.',
+      'RMSE는 변화량(크기), SAM은 변화양상(형태)을 분리해 봅니다.',
+      'R950/R1000 + BD1900으로 특정 대역의 화학적 거동을 해석합니다.',
+      'PCA score로 전체 스펙트럼 분산 구조를 시각적으로 확인합니다.'
+    ]
+  },
+  {
+    id: 'eq1',
+    navLabel: 'Eq.1 RMSE',
+    cardTitle: 'RMSE',
+    short: '기준 스펙트럼 대비 반사율 수준의 절대 변화량',
+    tag: '장기 안정성',
+    detailTitle: 'Eq.(1) RMSE — 전체 변화량',
+    detailSummary: '시간이 지나며 기준 스펙트럼에서 얼마나 멀어졌는지를 파장 전체에서 계산합니다.',
+    formula: 'RMSE = √[(1/N) Σ (Rt(λi) - R0(λi))²]',
+    points: [
+      '값이 작을수록 초기 상태와 유사해 분광학적 안정성이 높습니다.',
+      '밝기/형태가 함께 섞여 반영되므로 SAM과 함께 해석해야 합니다.',
+      '보존 처리 장기 모니터링에서 총 변화량 레이더 역할을 합니다.'
+    ]
+  },
+  {
+    id: 'eq2',
+    navLabel: 'Eq.2 SAM',
+    cardTitle: 'SAM',
+    short: '스펙트럼 형태(shape)의 각도 기반 변화 측정',
+    tag: '장기 안정성',
+    detailTitle: 'Eq.(2) SAM — 스펙트럼 형태 변화',
+    detailSummary: '두 스펙트럼 벡터의 각도를 계산해 밝기 스케일 영향보다 패턴 변화에 집중합니다.',
+    formula: 'SAM = cos⁻¹[(Rt · R0) / (|Rt||R0|)]',
+    points: [
+      'SAM ≈ 0°이면 형태가 유사합니다.',
+      '조명이나 거칠기 영향으로 전체 반사율이 바뀌어도 방향이 같으면 SAM은 작게 유지됩니다.',
+      '흡수대 위치·깊이 변화 같은 물질 고유 패턴 변화를 민감하게 포착합니다.'
+    ]
+  },
+  {
+    id: 'eq3',
+    navLabel: 'Eq.3 R950/R1000',
+    cardTitle: 'R950/R1000',
+    short: '950 nm 부근 상대 반사율 밴드비',
+    tag: '특징 파장대',
+    detailTitle: 'Eq.(3) R950/R1000 — 950 nm 지문',
+    detailSummary: '950 nm 주변과 1000 nm 주변 반사율 평균의 비로 특정 피처의 존재를 강조합니다.',
+    formula: 'R950/R1000 = mean(R945–955) / mean(R995–1005)',
+    points: [
+      '분모로 정규화해 조명·알베도 공통 변화를 줄입니다.',
+      '1에 가까우면 평탄, 높을수록 950 nm 피크/숄더 가능성이 큽니다.',
+      '처리제 구분에 유용한 분광 지문 지표로 활용됩니다.'
+    ]
+  },
+  {
+    id: 'eq4',
+    navLabel: 'Eq.4 Continuum',
+    cardTitle: 'Continuum',
+    short: '흡수대 분석을 위한 연속선 기준 직선',
+    tag: '특징 파장대',
+    detailTitle: 'Eq.(4) Continuum — 기준선 정의',
+    detailSummary: '흡수대 양쪽 어깨를 잇는 선형 보간으로 기준선을 구성합니다.',
+    formula: 'Rc(λ) = Rl + (Rr - Rl) × (λ - λl) / (λr - λl)',
+    points: [
+      '흡수대가 없었다면 따랐을 배경 스펙트럼을 가정합니다.',
+      '시편 간 절대 밝기 차이를 보정하는 준비 단계입니다.',
+      '다음 식(Eq.5, Eq.6)의 기준값 Rc(λ)를 제공합니다.'
+    ]
+  },
+  {
+    id: 'eq5',
+    navLabel: 'Eq.5 CR',
+    cardTitle: 'Continuum Removal',
+    short: '연속선으로 정규화한 흡수대 형태',
+    tag: '특징 파장대',
+    detailTitle: 'Eq.(5) Continuum-Removed Reflectance',
+    detailSummary: '실측 반사율을 연속선으로 나눠 흡수대 형태를 정규화합니다.',
+    formula: 'Rcr(λ) = R(λ) / Rc(λ)',
+    points: [
+      '어깨 구간은 1.0 근처, 흡수대 중심은 1.0 미만으로 표현됩니다.',
+      '절대 반사율 차이보다 상대적 흡수 형태 비교에 강합니다.',
+      'BD 계산을 위한 직접 입력값을 제공합니다.'
+    ]
+  },
+  {
+    id: 'eq6',
+    navLabel: 'Eq.6 BD',
+    cardTitle: 'BD (Band Depth)',
+    short: '1900 nm 흡수대 상대적 깊이',
+    tag: '특징 파장대',
+    detailTitle: 'Eq.(6) BD1900 — 수분/OH 흡수 강도',
+    detailSummary: '연속선 제거 반사율을 이용해 1900 nm 흡수대 깊이를 수치화합니다.',
+    formula: 'BD = 1 - Rcr(λc) = 1 - R(λc)/Rc(λc)',
+    points: [
+      '값이 클수록 흡수대가 깊고 수분/OH 관련 신호가 강합니다.',
+      '직접 R(1900) 비교보다 밝기 보정된 해석이 가능합니다.',
+      '가속 조건에서 처리 방식별 수분 거동 차이를 판단하는 핵심 지표입니다.'
+    ]
+  },
+  {
+    id: 'eq7',
+    navLabel: 'Eq.7 PCA',
+    cardTitle: 'PCA Score',
+    short: '전체 스펙트럼 분산 구조의 차원 축소 요약',
+    tag: '차원축소',
+    detailTitle: 'Eq.(7) PCA Score — 분산 구조 요약',
+    detailSummary: '평균 중심화 데이터 Xc를 로딩 벡터 pk에 투영해 각 시편의 점수 tk를 계산합니다.',
+    formula: 'tk = Xc × pk',
+    points: [
+      '가까운 점은 유사 스펙트럼, 먼 점은 이질 스펙트럼을 뜻합니다.',
+      '시간 경과 궤적을 통해 처리군의 변화 방향을 파악할 수 있습니다.',
+      '단일 지표가 아닌 전체 파장 구조를 함께 고려합니다.'
+    ]
+  }
 ];
 
-const wordQuiz = [
-  { word: 'schedule', ipa: '/ˈskedʒuːl/', reading: '스케줄', aliases: ['스케쥴'], meaning: '일정표' },
-  { word: 'enough', ipa: '/ɪˈnʌf/', reading: '이너프', aliases: [], meaning: '충분한' },
-  { word: 'colonel', ipa: '/ˈkɜːrnəl/', reading: '커널', aliases: ['커널(컬널X)'], meaning: '대령' },
-  { word: 'island', ipa: '/ˈaɪlənd/', reading: '아일랜드', aliases: [], meaning: '섬' },
-  { word: 'choir', ipa: '/ˈkwaɪər/', reading: '콰이어', aliases: [], meaning: '합창단' },
-  { word: 'fruit', ipa: '/fruːt/', reading: '프루트', aliases: [], meaning: '과일' },
-  { word: 'world', ipa: '/wɜːrld/', reading: '월드', aliases: [], meaning: '세계' },
-  { word: 'genre', ipa: '/ˈʒɑːnrə/', reading: '장르', aliases: ['잔르'], meaning: '장르' },
-  { word: 'heart', ipa: '/hɑːrt/', reading: '하트', aliases: [], meaning: '심장' },
-  { word: 'earth', ipa: '/ɜːrθ/', reading: '얼쓰', aliases: ['어스'], meaning: '지구' }
-];
-
-const STORAGE_KEY = 'ipa-quest-progress-v2';
-
-const state = {
-  mode: 'symbol',
-  score: 0,
-  streak: 0,
-  level: 1,
-  total: 0,
-  correct: 0,
-  current: null,
-  mastery: new Map(),
-  wrongItems: [],
-  answered: false,
+const symbolDict = {
+  'λ': '파장 (wavelength)',
+  'μ(λ)': '해당 파장의 평균 신호',
+  'σ(λ)': '해당 파장의 표준편차(잡음 크기)',
+  'N': '전체 파장 밴드 수',
+  'Rt(λi)': '시점 t에서 i번째 파장의 반사율',
+  'R0(λi)': '기준 시점에서 i번째 파장의 반사율',
+  'Rl': '흡수대 왼쪽 어깨 반사율',
+  'Rr': '흡수대 오른쪽 어깨 반사율',
+  'Rc(λ)': '연속선 반사율',
+  'Rcr(λ)': '연속선 제거 반사율',
+  'λc': '흡수대 중심 파장',
+  'Xc': '평균 중심화 데이터 행렬',
+  'pk': 'k번째 주성분 로딩 벡터',
+  'tk': 'k번째 주성분 점수'
 };
 
 const refs = {
-  level: document.getElementById('level'),
-  score: document.getElementById('score'),
-  streak: document.getElementById('streak'),
-  accuracy: document.getElementById('accuracy'),
-  questionTitle: document.getElementById('questionTitle'),
-  promptArea: document.getElementById('promptArea'),
-  subText: document.getElementById('subText'),
-  choices: document.getElementById('choices'),
-  feedback: document.getElementById('feedback'),
-  nextBtn: document.getElementById('nextBtn'),
-  speakBtn: document.getElementById('speakBtn'),
-  resetBtn: document.getElementById('resetBtn'),
-  masteryList: document.getElementById('masteryList'),
-  modeHint: document.getElementById('modeHint'),
-  modeButtons: [...document.querySelectorAll('.mode-btn')],
-  typingArea: document.getElementById('typingArea'),
-  typingInput: document.getElementById('typingInput'),
-  submitTypingBtn: document.getElementById('submitTypingBtn'),
+  topNav: document.getElementById('topNav'),
+  cards: document.getElementById('equationCards'),
+  detailTitle: document.getElementById('detailTitle'),
+  detailSummary: document.getElementById('detailSummary'),
+  detailFormula: document.getElementById('detailFormula'),
+  detailPoints: document.getElementById('detailPoints')
 };
 
-function shuffle(list) {
-  return [...list].sort(() => Math.random() - 0.5);
-}
-
-function saveProgress() {
-  const payload = {
-    score: state.score,
-    streak: state.streak,
-    level: state.level,
-    total: state.total,
-    correct: state.correct,
-    mastery: [...state.mastery.entries()],
-    wrongItems: state.wrongItems,
-  };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-}
-
-function loadProgress() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return;
-  try {
-    const parsed = JSON.parse(raw);
-    state.score = parsed.score || 0;
-    state.streak = parsed.streak || 0;
-    state.level = parsed.level || 1;
-    state.total = parsed.total || 0;
-    state.correct = parsed.correct || 0;
-    state.mastery = new Map(parsed.mastery || []);
-    state.wrongItems = parsed.wrongItems || [];
-  } catch {
-    localStorage.removeItem(STORAGE_KEY);
-  }
-}
-
-function pickReviewItem() {
-  if (!state.wrongItems.length) return null;
-  return state.wrongItems[Math.floor(Math.random() * state.wrongItems.length)];
-}
-
-function getTypingAccepted(item) {
-  return [item.reading, ...(item.aliases || [])].map((v) => v.replaceAll(' ', '').toLowerCase());
-}
-
-function prepareTypingMode(item = null) {
-  const picked = item || wordQuiz[Math.floor(Math.random() * wordQuiz.length)];
-  state.current = { ...picked, key: `typing:${picked.word}` };
-  refs.questionTitle.textContent = '직접 타이핑: IPA 보고 읽기 입력';
-  refs.promptArea.textContent = `${picked.word}  ${picked.ipa}`;
-  refs.subText.textContent = `뜻: ${picked.meaning}`;
-  refs.modeHint.textContent = '선택지가 없으니, 실제 시험처럼 스스로 읽기를 적어보세요.';
-  refs.typingArea.classList.remove('hidden');
-  refs.typingInput.value = '';
-  refs.typingInput.focus();
-}
-
-function buildChoiceQuestion(pool, kind) {
-  if (kind === 'symbol') {
-    const item = pool[Math.floor(Math.random() * pool.length)];
-    const answers = shuffle([item.sound, ...item.distractors]).slice(0, 4);
-    state.current = { ...item, answer: item.sound, key: `symbol:${item.ipa}` };
-    refs.questionTitle.textContent = '기호를 보고 소리를 고르세요';
-    refs.promptArea.textContent = item.ipa;
-    refs.subText.textContent = `예시: ${item.examples.join(', ')}`;
-    refs.modeHint.textContent = '모음 길이(ː), 강세(ˈ), 혀 위치를 확인하세요.';
-    return answers;
-  }
-
-  const item = pool[Math.floor(Math.random() * pool.length)];
-  const distractors = shuffle(wordQuiz.filter((w) => w.word !== item.word)).slice(0, 3).map((w) => w.reading);
-  const answers = shuffle([item.reading, ...distractors]);
-  state.current = { ...item, answer: item.reading, key: `${kind}:${item.word}` };
-  refs.questionTitle.textContent = kind === 'review' ? '오답 복습 모드' : '사전 발음기호만 보고 단어 읽기';
-  refs.promptArea.textContent = `${item.word}  ${item.ipa}`;
-  refs.subText.textContent = `뜻: ${item.meaning}`;
-  refs.modeHint.textContent = kind === 'review'
-    ? '틀렸던 단어를 다시 맞히면 오답 목록에서 제거됩니다.'
-    : '강세(ˈ) 위치와 장모음(ː)을 먼저 체크하고 읽으세요.';
-  return answers;
-}
-
-function nextQuestion() {
-  state.answered = false;
-  refs.nextBtn.disabled = true;
-  refs.feedback.textContent = '';
-  refs.feedback.className = 'feedback';
-  refs.choices.innerHTML = '';
-  refs.typingArea.classList.add('hidden');
-
-  if (state.mode === 'typing') {
-    prepareTypingMode();
-    return;
-  }
-
-  if (state.mode === 'review') {
-    const review = pickReviewItem();
-    if (!review) {
-      refs.questionTitle.textContent = '오답 복습 모드';
-      refs.promptArea.textContent = '🎉 복습할 오답이 없습니다!';
-      refs.subText.textContent = '다른 모드에서 문제를 풀고 다시 오세요.';
-      refs.modeHint.textContent = '오답이 생기면 자동으로 여기에 쌓입니다.';
-      return;
-    }
-    const options = buildChoiceQuestion([review], 'review');
-    options.forEach(makeChoiceButton);
-    return;
-  }
-
-  const options = state.mode === 'symbol'
-    ? buildChoiceQuestion(symbolQuiz, 'symbol')
-    : buildChoiceQuestion(wordQuiz, 'word');
-  options.forEach(makeChoiceButton);
-}
-
-function makeChoiceButton(answer) {
-  const btn = document.createElement('button');
-  btn.className = 'choice';
-  btn.textContent = answer;
-  btn.onclick = () => checkChoiceAnswer(answer, btn);
-  refs.choices.appendChild(btn);
-}
-
-function markWrongItem(item) {
-  if (!item.word) return;
-  if (!state.wrongItems.some((w) => w.word === item.word)) {
-    state.wrongItems.push({ word: item.word, ipa: item.ipa, reading: item.reading, meaning: item.meaning });
-  }
-}
-
-function removeWrongItem(item) {
-  if (!item.word) return;
-  state.wrongItems = state.wrongItems.filter((w) => w.word !== item.word);
-}
-
-function applyResult(isCorrect, explicitAnswer = '') {
-  state.total += 1;
-  if (isCorrect) {
-    state.correct += 1;
-    state.streak += 1;
-    const bonus = 12 + Math.min(state.streak, 10);
-    state.score += bonus;
-    refs.feedback.textContent = `정답! +${bonus}점`; 
-    refs.feedback.classList.add('ok');
-    removeWrongItem(state.current);
-  } else {
-    state.streak = 0;
-    state.score = Math.max(0, state.score - 5);
-    const answerText = state.current.answer || state.current.reading;
-    refs.feedback.textContent = `오답! ${explicitAnswer ? `(입력: ${explicitAnswer}) ` : ''}정답은 "${answerText}"`;
-    refs.feedback.classList.add('bad');
-    markWrongItem(state.current);
-  }
-
-  const currentMastery = state.mastery.get(state.current.key) || 0;
-  state.mastery.set(state.current.key, Math.max(0, currentMastery + (isCorrect ? 1 : -1)));
-
-  state.level = Math.floor(state.score / 150) + 1;
-  renderStatus();
-  renderMastery();
-  refs.nextBtn.disabled = false;
-  saveProgress();
-}
-
-function checkChoiceAnswer(answer, selectedBtn) {
-  if (state.answered) return;
-  state.answered = true;
-
-  const isCorrect = answer === state.current.answer;
-  [...refs.choices.children].forEach((btn) => {
-    if (btn.textContent === state.current.answer) btn.classList.add('correct');
+function symbolized(formula) {
+  const keys = Object.keys(symbolDict).sort((a, b) => b.length - a.length);
+  let rendered = formula;
+  keys.forEach((key) => {
+    const safe = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    rendered = rendered.replace(new RegExp(safe, 'g'), `<span class="symbol" data-tip="${symbolDict[key]}">${key}</span>`);
   });
-  if (!isCorrect) selectedBtn.classList.add('wrong');
-
-  applyResult(isCorrect);
+  return rendered;
 }
 
-function checkTypingAnswer() {
-  if (state.answered || state.mode !== 'typing') return;
-  const user = refs.typingInput.value.trim();
-  if (!user) {
-    refs.feedback.textContent = '입력 후 제출해주세요.';
-    refs.feedback.className = 'feedback bad';
-    return;
-  }
-  state.answered = true;
-  const normalized = user.replaceAll(' ', '').toLowerCase();
-  const accepted = getTypingAccepted(state.current);
-  const isCorrect = accepted.includes(normalized);
-  applyResult(isCorrect, user);
+function renderNav() {
+  refs.topNav.innerHTML = '';
+  equations.forEach((eq) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn';
+    btn.textContent = eq.navLabel;
+    btn.dataset.id = eq.id;
+    btn.addEventListener('click', () => setActive(eq.id));
+    refs.topNav.appendChild(btn);
+  });
 }
 
-function renderStatus() {
-  refs.level.textContent = String(state.level);
-  refs.score.textContent = String(state.score);
-  refs.streak.textContent = String(state.streak);
-  const acc = state.total === 0 ? 0 : Math.round((state.correct / state.total) * 100);
-  refs.accuracy.textContent = `${acc}%`;
+function renderCards() {
+  refs.cards.innerHTML = '';
+  equations.filter((eq) => eq.id !== 'home').forEach((eq, idx) => {
+    const card = document.createElement('article');
+    card.className = 'eq-card';
+    card.dataset.id = eq.id;
+    card.innerHTML = `
+      <p class="eq-index">EQUATION ${idx + 1}</p>
+      <h3>${eq.cardTitle}</h3>
+      <p>${eq.short}</p>
+      <span class="tag">${eq.tag}</span>
+    `;
+    card.addEventListener('click', () => setActive(eq.id));
+    refs.cards.appendChild(card);
+  });
 }
 
-function renderMastery() {
-  refs.masteryList.innerHTML = '';
-  const top = [...state.mastery.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
-
-  if (!top.length) {
+function renderDetail(eq) {
+  refs.detailTitle.textContent = eq.detailTitle;
+  refs.detailSummary.textContent = eq.detailSummary;
+  refs.detailFormula.innerHTML = symbolized(eq.formula);
+  refs.detailPoints.innerHTML = '';
+  eq.points.forEach((text) => {
     const li = document.createElement('li');
-    li.textContent = '아직 데이터가 없어요. 첫 문제를 풀어보세요!';
-    refs.masteryList.appendChild(li);
-    return;
-  }
-
-  top.forEach(([key, val]) => {
-    const li = document.createElement('li');
-    const status = val >= 3 ? '🔥 마스터' : val >= 1 ? '📈 진행중' : '🔁 복습필요';
-    li.textContent = `${key} — ${status}`;
-    refs.masteryList.appendChild(li);
+    li.textContent = text;
+    refs.detailPoints.appendChild(li);
   });
 }
 
-function speakCurrent() {
-  if (!state.current) return;
-  const utt = new SpeechSynthesisUtterance();
-  utt.lang = 'en-US';
-  utt.text = state.current.examples?.[0] || state.current.word || '';
-  speechSynthesis.cancel();
-  speechSynthesis.speak(utt);
-}
+function setActive(id) {
+  const selected = equations.find((eq) => eq.id === id) || equations[0];
+  renderDetail(selected);
 
-function resetProgress() {
-  localStorage.removeItem(STORAGE_KEY);
-  state.score = 0;
-  state.streak = 0;
-  state.level = 1;
-  state.total = 0;
-  state.correct = 0;
-  state.mastery = new Map();
-  state.wrongItems = [];
-  renderStatus();
-  renderMastery();
-  nextQuestion();
-}
-
-refs.modeButtons.forEach((btn) => {
-  btn.addEventListener('click', () => {
-    refs.modeButtons.forEach((b) => b.classList.remove('active'));
-    btn.classList.add('active');
-    state.mode = btn.dataset.mode;
-    nextQuestion();
+  document.querySelectorAll('.tab-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.id === selected.id);
   });
-});
 
-refs.nextBtn.addEventListener('click', nextQuestion);
-refs.speakBtn.addEventListener('click', speakCurrent);
-refs.resetBtn.addEventListener('click', resetProgress);
-refs.submitTypingBtn.addEventListener('click', checkTypingAnswer);
-refs.typingInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') checkTypingAnswer();
-});
+  document.querySelectorAll('.eq-card').forEach((card) => {
+    card.classList.toggle('active', card.dataset.id === selected.id);
+  });
+}
 
-loadProgress();
-renderStatus();
-renderMastery();
-nextQuestion();
+renderNav();
+renderCards();
+setActive('home');
