@@ -88,3 +88,9 @@ python pca_analysis.py --sample iris --plot-out iris_pca.png
 - 선택한 PCA 차원으로 변환된 데이터(`pca_output.csv`)
 - 설명 분산 비율(콘솔 출력)
 - 산점도 이미지(옵션)
+
+
+## 3) 연구개념도 한글 번역
+
+- `hyperspectral_framework_ko.md`: 논문용 연구개념도 문구를 프레임 구조에 맞춰 한글로 옮긴 버전
+
