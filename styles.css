@@ -1,123 +1,116 @@
 :root {
+  --bg: #f8fafc;
   --card: #ffffff;
-  --ink: #0f1b3d;
-  --accent: #4f46e5;
-  --accent-soft: #e0e7ff;
-  --ok: #166534;
-  --bad: #991b1b;
+  --ink: #0f172a;
+  --muted: #475569;
+  --primary: #2563eb;
+  --primary-soft: #dbeafe;
+  --border: #e2e8f0;
 }
 
 * { box-sizing: border-box; }
 body {
   margin: 0;
   font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif;
-  background: linear-gradient(145deg, #eef2ff, #fdf4ff);
+  background: radial-gradient(circle at top, #e0e7ff 0%, var(--bg) 40%);
   color: var(--ink);
 }
 
 .app {
-  width: min(1000px, 94vw);
-  margin: 24px auto;
+  width: min(920px, 94vw);
+  margin: 28px auto;
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
-header, .card, .mode-panel, .status-panel, .progress-list, .study-plan {
+.hero,
+.panel {
   background: var(--card);
-  border-radius: 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
   padding: 18px;
-  box-shadow: 0 6px 25px rgba(79, 70, 229, 0.08);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.06);
 }
 
-h1 { margin: 0 0 8px; }
-h2 { margin: 0 0 12px; font-size: 1.15rem; }
+h1 { margin: 0 0 6px; }
+h2 { margin: 0 0 12px; font-size: 1.1rem; }
 p { margin: 0; }
 
-.status-panel {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 10px;
-}
-
-.badge {
-  background: var(--accent-soft);
-  color: var(--accent);
-  padding: 10px;
-  border-radius: 12px;
-  text-align: center;
+label {
   font-weight: 700;
+  display: block;
+  margin-bottom: 8px;
 }
 
-.buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+textarea {
+  width: 100%;
+  border: 2px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 0.98rem;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
 
 button {
   border: none;
   border-radius: 10px;
   padding: 10px 14px;
-  cursor: pointer;
   font-weight: 700;
-  font-size: 0.95rem;
+  cursor: pointer;
+  background: var(--primary);
+  color: #fff;
 }
 
-.mode-btn { background: #eef2ff; color: #3730a3; }
-.mode-btn.active { background: var(--accent); color: white; }
-
-.prompt {
-  font-size: clamp(1.6rem, 4vw, 2.3rem);
-  font-weight: 800;
-  margin: 10px 0;
+button.ghost {
+  background: var(--primary-soft);
+  color: #1e40af;
 }
 
-.subtext { font-size: 0.95rem; color: #475569; margin-bottom: 8px; }
+.tip {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
 
-.choices {
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.chip {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.explanation {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.explanation.empty {
+  color: var(--muted);
+}
+
+.quick-guide {
+  margin: 0;
+  padding-left: 18px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 10px;
-  margin: 14px 0;
-}
-
-.choice {
-  background: #f8fafc;
-  color: #0f172a;
-  border: 2px solid #e2e8f0;
-}
-.choice.correct { border-color: #22c55e; background: #dcfce7; }
-.choice.wrong { border-color: #f87171; background: #fee2e2; }
-
-.feedback { min-height: 24px; font-weight: 700; }
-.feedback.ok { color: var(--ok); }
-.feedback.bad { color: var(--bad); }
-
-.actions { display: flex; gap: 8px; flex-wrap: wrap; }
-#nextBtn:disabled { opacity: 0.45; cursor: not-allowed; }
-
-.progress-list ul, .progress-list li { margin: 0; padding: 0; list-style: none; }
-#masteryList {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 8px;
 }
-#masteryList li {
-  background: #f8fafc;
-  border-radius: 10px;
-  padding: 8px 10px;
-  border: 1px solid #e2e8f0;
-}
-
-.hint { margin-top: 8px; color: #475569; font-size: 0.9rem; }
-
-.typing-area { margin: 8px 0 14px; }
-.typing-area label { display: block; font-size: 0.92rem; margin-bottom: 8px; }
-.typing-row { display: flex; gap: 8px; }
-.typing-row input {
-  flex: 1;
-  border-radius: 10px;
-  border: 2px solid #cbd5e1;
-  padding: 10px;
-  font-size: 0.95rem;
-}
-
-.hidden { display: none; }
-
-.study-plan ol { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
