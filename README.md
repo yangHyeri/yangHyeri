@@ -61,3 +61,21 @@ python pca_analysis.py --sample iris --plot-out iris_pca.png
 - 선택한 PCA 차원으로 변환된 데이터(`pca_output.csv`)
 - 설명 분산 비율(콘솔 출력)
 - 산점도 이미지(옵션)
+
+## JCH 석회 모르타르 7개 수식 시각화
+
+아래 스크립트는 논문의 핵심 수식(예: RMSE, SAM, Continuum 제거, BD1900, PCA)을 비전공자도 이해하기 쉽게 도식화한 PNG를 생성합니다.
+
+```bash
+python jch_mortar_equation_visuals.py
+```
+
+생성 파일:
+- `fig1_rmse.png`
+- `fig2_sam.png`
+- `fig3_continuum_bd1900.png`
+- `fig4_pca_scores_loadings.png`
+
+제약:
+- `numpy`, `matplotlib`만 사용
+- 입력 스펙트럼이 없을 때를 가정해 950/1400/1900/2400 nm 피처를 반영한 가상 스펙트럼 자동 생성
