@@ -3,69 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IPA Quest - 영어 발음기호 마스터 게임</title>
+  <title>Grammar Lens - 영어 문법 용례 해설기</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="app">
-    <header>
-      <h1>🎯 IPA Quest</h1>
-      <p>사전 발음기호만 보고도 영단어를 읽는 실력을 만드는 훈련 게임</p>
+    <header class="hero">
+      <h1>📚 Grammar Lens</h1>
+      <p>문장을 입력하면 시제·조동사·완료형 같은 문법 포인트를 한국어로 쉽게 풀어줍니다.</p>
     </header>
 
-    <section class="status-panel">
-      <div class="badge">레벨 <span id="level">1</span></div>
-      <div class="badge">점수 <span id="score">0</span></div>
-      <div class="badge">연속 정답 <span id="streak">0</span></div>
-      <div class="badge">정확도 <span id="accuracy">0%</span></div>
-    </section>
-
-    <section class="mode-panel">
-      <h2>학습 모드</h2>
-      <div class="buttons">
-        <button data-mode="symbol" class="mode-btn active">기호→소리</button>
-        <button data-mode="word" class="mode-btn">단어 읽기</button>
-        <button data-mode="typing" class="mode-btn">직접 타이핑</button>
-        <button data-mode="review" class="mode-btn">오답 복습</button>
-      </div>
-      <p class="hint" id="modeHint"></p>
-    </section>
-
-    <section class="card" id="questionCard">
-      <h2 id="questionTitle">문제</h2>
-      <div class="prompt" id="promptArea"></div>
-      <p class="subtext" id="subText"></p>
-      <div class="choices" id="choices"></div>
-
-      <div id="typingArea" class="typing-area hidden">
-        <label for="typingInput">한글 발음을 직접 입력해보세요</label>
-        <div class="typing-row">
-          <input id="typingInput" type="text" placeholder="예: 스케줄" />
-          <button id="submitTypingBtn">제출</button>
-        </div>
-      </div>
-
-      <div class="feedback" id="feedback"></div>
+    <section class="panel input-panel">
+      <label for="sentenceInput">분석할 문장</label>
+      <textarea id="sentenceInput" rows="4">Packing took about 30 minutes, and if we wanted to eat inside the restaurant, we would have had to wait much longer.</textarea>
       <div class="actions">
-        <button id="speakBtn">🔊 발음 듣기</button>
-        <button id="nextBtn" disabled>다음 문제</button>
-        <button id="resetBtn">진도 초기화</button>
+        <button id="analyzeBtn">문법 분석하기</button>
+        <button id="sampleBtn" class="ghost">예문 다시 넣기</button>
       </div>
+      <p class="tip">Tip: 현재는 학습용 룰 기반 분석기이며, 특히 <strong>would have had to</strong> 같은 표현을 자세히 설명합니다.</p>
     </section>
 
-    <section class="progress-list">
-      <h2>오늘의 마스터 현황</h2>
-      <ul id="masteryList"></ul>
+    <section class="panel" id="resultPanel">
+      <h2>분석 결과</h2>
+      <div id="chips" class="chips"></div>
+      <div id="explanation" class="explanation empty">문장을 입력하고 <strong>문법 분석하기</strong>를 눌러주세요.</div>
     </section>
 
-    <section class="study-plan">
-      <h2>추천 학습 루틴 (하루 20분)</h2>
-      <ol>
-        <li>기호→소리 10문제 (정확도 80% 목표)</li>
-        <li>단어 읽기 10문제 (강세표시 ˈ 확인하기)</li>
-        <li>직접 타이핑 5문제 (소리만 보고 쓰기)</li>
-        <li>오답 복습 모드 5문제 (틀린 것만 반복)</li>
-      </ol>
+    <section class="panel">
+      <h2>핵심 문법 빠른 참고</h2>
+      <ul class="quick-guide">
+        <li><strong>would</strong>: 가정/추측/공손 표현에서 자주 쓰이는 조동사</li>
+        <li><strong>have + p.p.</strong>: 과거를 돌아보는 완료(perfect) 관점</li>
+        <li><strong>had to</strong>: 과거의 의무("~해야 했다")</li>
+        <li><strong>would have had to</strong>: "(그랬다면) ~해야 했을 텐데" 같은 과거 가정 + 의무 결합</li>
+      </ul>
     </section>
   </main>
 
